@@ -169,3 +169,4 @@
 3,Human,GreedyPlayer,0,Human,7,game00003.log,
 4,Human,GreedyPlayer,1,GreedyPlayer,8,game00004.log,
 5,Human,RandomPlayer,0,Human,6,game00005.log,
+2,Human,GreedyPlayer,0,Human,11,game00002.log,
