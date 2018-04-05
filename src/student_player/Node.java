@@ -27,6 +27,12 @@ public class Node {
 		return children;
 	}
 	
+
+	public List<Node> addChildren(List<Node> nodes) {
+		children.addAll(nodes);
+		return children;
+	}
+	
 	public TablutBoardState getBoardState() {
 		return boardState;
 	}
