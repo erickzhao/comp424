@@ -13,7 +13,7 @@ public class StudentPlayer extends TablutPlayer {
      * associate you with your agent. The constructor should do nothing else.
      */
     public StudentPlayer() {
-        super("xxxxxxxxx");
+        super("260687719");
     }
 
     /**
@@ -22,9 +22,6 @@ public class StudentPlayer extends TablutPlayer {
      * make decisions.
      */
     public Move chooseMove(TablutBoardState boardState) {
-        // You probably will make separate functions in MyTools.
-        // For example, maybe you'll need to load some pre-processed best opening
-        // strategies...
         MyTools.getSomething();
 
         // Is random the best you can do?

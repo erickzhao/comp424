@@ -164,3 +164,8 @@
 169,RandomPlayer,xxxxxxxxx,0,RandomPlayer,15,game00169.log,
 170,xxxxxxxxx,RandomPlayer,0,xxxxxxxxx,15,game00170.log,
 171,RandomPlayer,xxxxxxxxx,0,RandomPlayer,15,game00171.log,
+1,RandomPlayer,Human,1,Human,17,game00001.log,
+2,Human,GreedyPlayer,GAMEOVER USER CANCEL UNDECIDED,NOBODY,1,game00002.log,USER CANCEL
+3,Human,GreedyPlayer,0,Human,7,game00003.log,
+4,Human,GreedyPlayer,1,GreedyPlayer,8,game00004.log,
+5,Human,RandomPlayer,0,Human,6,game00005.log,
