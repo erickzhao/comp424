@@ -11,11 +11,16 @@ public class Node {
 	private int winCount;
 	private int visitCount;
 	
-	public Node() {
+	public Node(TablutBoardState bs) {
         super();
+        boardState = bs;
         children = new ArrayList<Node>();
         winCount = 0;
         visitCount = 0;
+	}
+	
+	public boolean isRoot() {
+		return parent == null;
 	}
 	
 	public Node getParent() {
@@ -51,5 +56,13 @@ public class Node {
 	}
 	public void addLoss() {
 		visitCount++;
+	}
+	
+	public int getWinCount() {
+		return winCount;
+	}
+	
+	public int getVisitCount() {
+		return visitCount;
 	}
 }
