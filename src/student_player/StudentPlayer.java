@@ -27,7 +27,7 @@ public class StudentPlayer extends TablutPlayer {
      */
     public Move chooseMove(TablutBoardState boardState) {
         // Is random the best you can do?
-        Move myMove = boardState.getRandomMove();
+        Move myMove = TreeSearch.searchForMove(boardState);
         
         // Return your move to be processed by the server.
         return myMove;

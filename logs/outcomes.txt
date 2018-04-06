@@ -170,3 +170,15 @@
 4,Human,GreedyPlayer,1,GreedyPlayer,8,game00004.log,
 5,Human,RandomPlayer,0,Human,6,game00005.log,
 2,Human,GreedyPlayer,0,Human,11,game00002.log,
+3,260687719,RandomPlayer,GAMEOVER DRAW,NOBODY,50,game00003.log,
+4,260687719,RandomPlayer,GAMEOVER DRAW,NOBODY,50,game00004.log,
+5,260687719,GreedyPlayer,1,GreedyPlayer,10,game00005.log,
+6,RandomPlayer,260687719,GAMEOVER DRAW,NOBODY,50,game00006.log,
+7,260687719,RandomPlayer,GAMEOVER DRAW,NOBODY,50,game00007.log,
+8,260687719,RandomPlayer,1,RandomPlayer,34,game00008.log,
+9,260687719,RandomPlayer,1,RandomPlayer,41,game00009.log,
+10,260687719,RandomPlayer,1,RandomPlayer,0,game00010.log,TIMEOUT
+11,260687719,GreedyPlayer,1,GreedyPlayer,0,game00011.log,TIMEOUT
+12,260687719,RandomPlayer,GAMEOVER DRAW,NOBODY,50,game00012.log,
+13,260687719,RandomPlayer,1,RandomPlayer,2,game00013.log,TIMEOUT
+14,RandomPlayer,260687719,GAMEOVER DRAW,NOBODY,50,game00014.log,
