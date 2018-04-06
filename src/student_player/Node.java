@@ -8,10 +8,14 @@ public class Node {
 	private TablutBoardState boardState;
 	private Node parent;
 	private List<Node> children;
+	private int winCount;
+	private int visitCount;
 	
 	public Node() {
         super();
         children = new ArrayList<Node>();
+        winCount = 0;
+        visitCount = 0;
 	}
 	
 	public Node getParent() {
@@ -36,7 +40,16 @@ public class Node {
 	public TablutBoardState getBoardState() {
 		return boardState;
 	}
+	
 	public void setBoardState(TablutBoardState boardState) {
 		this.boardState = boardState;
+	}
+	
+	public void addWin() {
+		winCount++;
+		visitCount++;
+	}
+	public void addLoss() {
+		visitCount++;
 	}
 }
