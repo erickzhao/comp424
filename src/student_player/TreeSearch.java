@@ -54,28 +54,29 @@ public class TreeSearch {
 		List<Node> children = node.getChildren();
 		if (children.size() > 0) {
 			return (node.getBoardState().getTurnPlayer() == player_id) ?
-					select(UpperConfidenceTree.getBestChild(node)) :
-					select(UpperConfidenceTree.getWorstChild(node));
+					select(node.getBestChild()) :
+					select(node.getWorstChild());
 		}
 		return selected;
 	}
 	
 	private static void expand(Node node) {
-    	long a = System.currentTimeMillis();
 		List<TablutMove> options = node.getBoardState().getAllLegalMoves();
 		for (TablutMove move : options) {
 			if (node.isRoot() || node.getPreviousMove().getStartPosition().distance(move.getEndPosition()) != 0) {
+		    	long a = System.currentTimeMillis();
 				TablutBoardState cloneBS = (TablutBoardState) node.getBoardState().clone();
+		    	long b = System.currentTimeMillis();
 				cloneBS.processMove(move);
-				
+
 				Node child = new Node(cloneBS, move);
 				node.addChild(child);
+				
+		    	if (b-a > 50) {
+		    		System.out.printf("It took %d ms to expand %d options\n",System.currentTimeMillis() - a, options.size());
+		    	}
 			}
 		}
-    	long b = System.currentTimeMillis();
-    	if (b-a > 50) {
-    		System.out.printf("It took %d ms to expand %d options\n",System.currentTimeMillis() - a, options.size());
-    	}
 	}
 	
 	private static double simulate(Node node) {

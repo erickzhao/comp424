@@ -33,3 +33,12 @@
 33,RandomPlayer,260687719,0,RandomPlayer,13,game00033.log,TIMEOUT
 34,260687719,RandomPlayer,0,260687719,18,game00034.log,
 35,RandomPlayer,260687719,0,RandomPlayer,8,game00035.log,TIMEOUT
+83,260687719,RandomPlayer,0,260687719,7,game00083.log,
+84,RandomPlayer,260687719,0,RandomPlayer,6,game00084.log,TIMEOUT
+85,260687719,RandomPlayer,1,RandomPlayer,22,game00085.log,TIMEOUT
+86,RandomPlayer,260687719,0,RandomPlayer,11,game00086.log,TIMEOUT
+87,260687719,RandomPlayer,0,260687719,10,game00087.log,
+88,RandomPlayer,260687719,1,260687719,8,game00088.log,
+89,260687719,RandomPlayer,0,260687719,17,game00089.log,
+90,RandomPlayer,260687719,1,260687719,16,game00090.log,
+91,260687719,RandomPlayer,0,260687719,12,game00091.log,

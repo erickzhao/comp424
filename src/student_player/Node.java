@@ -2,6 +2,8 @@ package student_player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+
 import tablut.TablutBoardState;
 import tablut.TablutMove;
 
@@ -12,6 +14,8 @@ public class Node implements Comparable<Node> {
 	private List<Node> children;
 	private double winScore;
 	private int visitCount;
+	
+	
 	
 	public Node(TablutBoardState bs, TablutMove m) {
         super();
@@ -71,6 +75,50 @@ public class Node implements Comparable<Node> {
 	
 	public TablutMove getPreviousMove() {
 		return previousMove;
+	}
+	
+	
+	
+	public Node getBestChild() {
+		double maxScore = 0;
+		List<Node> children = this.getChildren();
+		List<Node> unexplored = new ArrayList<Node>();
+		Node bestChild = null;
+		
+		for (Node child : children) {
+			double score = MyTools.getUCTScore(child);
+			
+			if (score == Integer.MAX_VALUE) {
+				unexplored.add(child);
+			} else if (score > maxScore) {
+				maxScore = score;
+				bestChild = child;
+			}
+		}
+		
+		if (unexplored.size() > 0) {
+			int random = new Random().nextInt(unexplored.size());
+			return unexplored.get(random);
+		}
+		
+		return bestChild;
+	}
+	
+	public Node getWorstChild() {
+		double minScore = Integer.MAX_VALUE;
+		List<Node> children = this.getChildren();
+		Node worstChild = children.get(0);
+		
+		for (Node child : children) {
+			double score = MyTools.getUCTScore(child);
+			
+			if (score < minScore) {
+				minScore = score;
+				worstChild = child;
+			}
+		}
+		
+		return worstChild;
 	}
 
 }
