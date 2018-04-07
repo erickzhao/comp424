@@ -120,5 +120,16 @@ public class Node implements Comparable<Node> {
 		
 		return worstChild;
 	}
+	
+	public int getDepth() {
+		int depth = 0;
+		
+		Node currentNode = this;
+		while (!currentNode.isRoot()) {
+			depth++;
+			currentNode = currentNode.getParent();
+		}
+		return depth;
+	}
 
 }
