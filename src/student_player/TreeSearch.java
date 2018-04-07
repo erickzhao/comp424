@@ -13,7 +13,7 @@ public class TreeSearch {
     private static final int SWEDE = 1;
     private static final int MUSCOVITE = 0;
     private static final int TIME_LIMIT_MS = 2000;
-    private static final int TIME_BUFFER_MS = 800;
+    private static final int TIME_BUFFER_MS = 1000;
     private static int opp_id;
     private static int player_id;
 	
@@ -41,6 +41,7 @@ public class TreeSearch {
         	
         	// 4. backpropagation
         	backprop(selectedNode, winScore);
+        	
         }
         
         // once time expired, select best move
@@ -60,6 +61,7 @@ public class TreeSearch {
 	}
 	
 	private static void expand(Node node) {
+    	long a = System.currentTimeMillis();
 		List<TablutMove> options = node.getBoardState().getAllLegalMoves();
 		for (TablutMove move : options) {
 			if (node.isRoot() || node.getPreviousMove().getStartPosition().distance(move.getEndPosition()) != 0) {
@@ -70,6 +72,10 @@ public class TreeSearch {
 				node.addChild(child);
 			}
 		}
+    	long b = System.currentTimeMillis();
+    	if (b-a > 50) {
+    		System.out.printf("It took %d ms to expand %d options\n",System.currentTimeMillis() - a, options.size());
+    	}
 	}
 	
 	private static double simulate(Node node) {
