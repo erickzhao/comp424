@@ -1,12 +1,14 @@
 package student_player;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class UpperConfidenceTree {
 	private static final double SCALING_CONSTANT = Math.sqrt(2);
 	
 	public static double getScore(Node node) {
-		int wins = node.getWinCount();
+		double winScore = node.getWinScore();
 		int visits = node.getVisitCount();
 		
 		// explore if node is unvisited
@@ -16,25 +18,29 @@ public class UpperConfidenceTree {
 		
 		int parentVisits = node.getParent().getVisitCount();
 		
-		return (double) wins / (double) visits + SCALING_CONSTANT * Math.sqrt(Math.log(parentVisits)/visits);
+		return winScore / visits + SCALING_CONSTANT * Math.sqrt(Math.log(parentVisits)/visits);
 	}
 	
 	public static Node getBestChild(Node node) {
 		double maxScore = 0;
 		List<Node> children = node.getChildren();
-		Node bestChild = children.get(0);
+		List<Node> unexplored = new ArrayList<Node>();
+		Node bestChild = null;
 		
 		for (Node child : children) {
 			double score = getScore(child);
 			
-			if (score > maxScore) {
+			if (score == Integer.MAX_VALUE) {
+				unexplored.add(child);
+			} else if (score > maxScore) {
 				maxScore = score;
 				bestChild = child;
 			}
-			
-			if (score == Integer.MAX_VALUE) {
-				break;
-			}
+		}
+		
+		if (unexplored.size() > 0) {
+			int random = new Random().nextInt(unexplored.size());
+			return unexplored.get(random);
 		}
 		
 		return bestChild;

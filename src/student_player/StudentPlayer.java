@@ -1,11 +1,7 @@
 package student_player;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import boardgame.Move;
 import tablut.TablutBoardState;
-import tablut.TablutMove;
 import tablut.TablutPlayer;
 
 /** A player file submitted by a student. */

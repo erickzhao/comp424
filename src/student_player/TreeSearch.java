@@ -1,7 +1,5 @@
 package student_player;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -9,14 +7,13 @@ import boardgame.Board;
 import boardgame.Move;
 import tablut.TablutBoardState;
 import tablut.TablutMove;
-import tablut.TablutPlayer;
 
 public class TreeSearch {
 	// define number codes
     private static final int SWEDE = 1;
     private static final int MUSCOVITE = 0;
     private static final int TIME_LIMIT_MS = 2000;
-    private static final int TIME_BUFFER_MS = 100;
+    private static final int TIME_BUFFER_MS = 800;
     private static int opp_id;
     private static int player_id;
 	
@@ -32,12 +29,19 @@ public class TreeSearch {
         final long START_TIME = System.currentTimeMillis();
         // loop Monte Carlo simulations until time is a bit under 2s
         while (System.currentTimeMillis() - START_TIME < TIME_LIMIT_MS - TIME_BUFFER_MS) {
+        	
+        	// 1. selection
         	Node selectedNode = select(root);
+        	
+        	// 2. expansion
         	expand(selectedNode);
-        	boolean isWin = simulate(selectedNode);
-        	backprop(selectedNode, isWin);
+        	
+        	// 3. simulation
+        	double winScore = simulate(selectedNode);
+        	
+        	// 4. backpropagation
+        	backprop(selectedNode, winScore);
         }
-        
         
         // once time expired, select best move
         Node bestNode = Collections.max(root.getChildren());
@@ -68,28 +72,29 @@ public class TreeSearch {
 		}
 	}
 	
-	private static boolean simulate(Node node) {
+	private static double simulate(Node node) {
 		TablutBoardState cloneBS = (TablutBoardState) node.getBoardState().clone();
+		int initialTurnNumber = cloneBS.getTurnNumber();
 		
 		while (cloneBS.getWinner() == Board.NOBODY) {
 			Move randomMove = cloneBS.getRandomMove();
 			cloneBS.processMove((TablutMove) randomMove);
 		}
 		
-		return (cloneBS.getWinner() == player_id);
+		if (cloneBS.getWinner() == player_id) {
+			return 40.0/(cloneBS.getTurnNumber()-initialTurnNumber);
+		} else {
+			return 0;
+		}
 	}
 	
-	private static void backprop(Node node, boolean isWin) {
+	private static void backprop(Node node, double winScore) {
 		Node currentNode = node;
 		
-		if (isWin) {
-			currentNode.addWin();
-		} else {
-			currentNode.addLoss();
-		}
+		currentNode.addResult(winScore);
 		
 		if (!currentNode.isRoot()) {
-			backprop(currentNode.getParent(), isWin);
+			backprop(currentNode.getParent(), winScore);
 		}
 	}
 }

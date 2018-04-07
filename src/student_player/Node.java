@@ -10,7 +10,7 @@ public class Node implements Comparable<Node> {
 	private TablutMove previousMove;
 	private Node parent;
 	private List<Node> children;
-	private int winCount;
+	private double winScore;
 	private int visitCount;
 	
 	public Node(TablutBoardState bs, TablutMove m) {
@@ -18,13 +18,13 @@ public class Node implements Comparable<Node> {
         boardState = bs;
         previousMove = m;
         children = new ArrayList<Node>();
-        winCount = 0;
+        winScore = 0;
         visitCount = 0;
 	}
 	
 	@Override
 	public int compareTo(Node other) {
-		return winCount - other.getWinCount();
+		return (int) (winScore - other.getWinScore());
 	}
 	
 	public boolean isRoot() {
@@ -56,16 +56,13 @@ public class Node implements Comparable<Node> {
 		this.boardState = boardState;
 	}
 	
-	public void addWin() {
-		winCount++;
-		visitCount++;
-	}
-	public void addLoss() {
+	public void addResult(double ws) {
+		winScore +=ws;
 		visitCount++;
 	}
 	
-	public int getWinCount() {
-		return winCount;
+	public double getWinScore() {
+		return winScore;
 	}
 	
 	public int getVisitCount() {
