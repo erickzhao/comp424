@@ -34,20 +34,18 @@ public class Node implements Comparable<Node> {
 	public Node getParent() {
 		return parent;
 	}
+
+	public Node setParent(Node parentNode) {
+		return parent = parentNode;
+	}
 	
 	public List<Node> getChildren() {
 		return children;
 	}
 	
-	public List<Node> addChild(Node node) {
-		children.add(node);
-		return children;
-	}
-	
-
-	public List<Node> addChildren(List<Node> nodes) {
-		children.addAll(nodes);
-		return children;
+	public void addChild(Node childNode) {
+		children.add(childNode);
+		childNode.setParent(this);
 	}
 	
 	public TablutBoardState getBoardState() {
