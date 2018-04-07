@@ -182,3 +182,18 @@
 12,260687719,RandomPlayer,GAMEOVER DRAW,NOBODY,50,game00012.log,
 13,260687719,RandomPlayer,1,RandomPlayer,2,game00013.log,TIMEOUT
 14,RandomPlayer,260687719,GAMEOVER DRAW,NOBODY,50,game00014.log,
+25,260687719,RandomPlayer,1,RandomPlayer,43,game00025.log,
+27,260687719,RandomPlayer,0,260687719,35,game00027.log,
+28,260687719,RandomPlayer,GAMEOVER DRAW,NOBODY,50,game00028.log,
+29,260687719,RandomPlayer,0,260687719,25,game00029.log,
+30,260687719,RandomPlayer,1,RandomPlayer,18,game00030.log,TIMEOUT
+31,260687719,RandomPlayer,1,RandomPlayer,2,game00031.log,TIMEOUT
+33,260687719,RandomPlayer,1,RandomPlayer,14,game00033.log,TIMEOUT
+35,260687719,RandomPlayer,1,RandomPlayer,8,game00035.log,TIMEOUT
+46,260687719,RandomPlayer,GAMEOVER DRAW,NOBODY,50,game00046.log,
+47,260687719,RandomPlayer,0,260687719,19,game00047.log,
+48,260687719,RandomPlayer,0,260687719,23,game00048.log,
+49,RandomPlayer,260687719,0,RandomPlayer,1,game00049.log,TIMEOUT
+50,260687719,RandomPlayer,0,260687719,17,game00050.log,
+51,RandomPlayer,260687719,1,260687719,10,game00051.log,
+52,260687719,GreedyPlayer,0,260687719,8,game00052.log,

@@ -13,8 +13,10 @@ import tablut.TablutPlayer;
 
 public class TreeSearch {
 	// define number codes
-    public static final int SWEDE = 1;
-    public static final int MUSCOVITE = 0;
+    private static final int SWEDE = 1;
+    private static final int MUSCOVITE = 0;
+    private static final int TIME_LIMIT_MS = 2000;
+    private static final int TIME_BUFFER_MS = 100;
     private static int opp_id;
     private static int player_id;
 	
@@ -29,17 +31,17 @@ public class TreeSearch {
         
         final long START_TIME = System.currentTimeMillis();
         // loop Monte Carlo simulations until time is a bit under 2s
-        while (System.currentTimeMillis() - START_TIME < 1000) {
+        while (System.currentTimeMillis() - START_TIME < TIME_LIMIT_MS - TIME_BUFFER_MS) {
         	Node selectedNode = select(root);
         	expand(selectedNode);
         	boolean isWin = simulate(selectedNode);
         	backprop(selectedNode, isWin);
         }
         
+        
         // once time expired, select best move
         Node bestNode = Collections.max(root.getChildren());
         return bestNode.getPreviousMove();
-        
 	}
 	
 	private static Node select(Node node) {
@@ -56,11 +58,13 @@ public class TreeSearch {
 	private static void expand(Node node) {
 		List<TablutMove> options = node.getBoardState().getAllLegalMoves();
 		for (TablutMove move : options) {
-			TablutBoardState cloneBS = (TablutBoardState) node.getBoardState().clone();
-			cloneBS.processMove(move);
-			
-			Node child = new Node(cloneBS, move);
-			node.addChild(child);
+			if (node.isRoot() || node.getPreviousMove().getStartPosition().distance(move.getEndPosition()) != 0) {
+				TablutBoardState cloneBS = (TablutBoardState) node.getBoardState().clone();
+				cloneBS.processMove(move);
+				
+				Node child = new Node(cloneBS, move);
+				node.addChild(child);
+			}
 		}
 	}
 	
