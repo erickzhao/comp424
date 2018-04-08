@@ -4,13 +4,11 @@ import java.util.Collections;
 import java.util.List;
 
 import boardgame.Board;
-import boardgame.BoardState;
 import boardgame.Move;
 import coordinates.Coord;
 import coordinates.Coordinates;
 import tablut.TablutBoardState;
 import tablut.TablutMove;
-import tablut.TablutBoardState.Piece;
 
 public class TreeSearch {
     

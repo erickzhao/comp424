@@ -105,7 +105,7 @@ public class Node implements Comparable<Node> {
 		double maxScore = 0;
 		List<Node> children = this.getChildren();
 		List<Node> unexplored = new ArrayList<Node>();
-		Node bestChild = null;
+		Node bestChild = children.get(0);
 		
 		for (Node child : children) {
 			double score = MyTools.getUCTScore(child);
