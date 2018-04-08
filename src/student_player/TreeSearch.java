@@ -10,16 +10,29 @@ import tablut.TablutBoardState;
 import tablut.TablutMove;
 
 public class TreeSearch {
-	// define number codes
+	// number codes for teams
     private static final int SWEDE = 1;
     private static final int MUSCOVITE = 0;
-    private static final int MAX_TREE_DEPTH = 10;
-    private static final int MAX_SIMULATION_TURNS = 20;
-    private static final int TIME_LIMIT_MS = 2000;
-    private static final int TIME_BUFFER_MS = 1200;
+    
+    // defines which ID is player and opponent
     private static int opp_id;
     private static int player_id;
+    
+    // limits for computational budget purposes
+    private static final int MAX_TREE_DEPTH = 10;
+    private static final int MAX_SIMULATION_TURNS = 20;
+    
+    // timing constants to prevent loop from timing out
+    private static final int TIME_LIMIT_MS = 2000;
+    private static final int GRACE_PERIOD_MS = 1200;
+    
+    private static TablutMove firstRolloutMove;
 	
+    /**
+     * Runs a Monte Carlo Tree Search to find next move
+     * @param boardState	initial board state before move
+     * @return				next best move as per MCTS simulations
+     */
 	public static Move searchForMove(TablutBoardState boardState) {
         
 		// make player IDs available for tree search use
@@ -30,21 +43,22 @@ public class TreeSearch {
         Node root = new Node(boardState, null);
         
         final long START_TIME = System.currentTimeMillis();
-        // loop Monte Carlo simulations until time is a bit under 2s
-        while (System.currentTimeMillis() - START_TIME < TIME_LIMIT_MS - TIME_BUFFER_MS) {
+        // loop Monte Carlo simulations until time budget runs out
+        // occasionally algorithm will get blocked for one reason or another, so add
+        // grace period to let current iteration finish
+        while (System.currentTimeMillis() - START_TIME < TIME_LIMIT_MS - GRACE_PERIOD_MS) {
         	
-        	// 1. selection
-        	Node selectedNode = select(root);
+        	// 1. descent with tree policy (upper confidence trees)
+        	Node selectedLeaf = descendAndGetBestLeaf(root);
+
+        	// 2. roll out with default policy (random simulations)
+        	double winScore = rollOutAndGetWinScore(selectedLeaf);
+
+        	// 3. update win scores with backpropagation
+        	backprop(selectedLeaf, winScore);
         	
-        	// 2. expansion
-        	expand(selectedNode);
-        	
-        	// 3. simulation
-        	double winScore = simulate(selectedNode);
-        	
-        	// 4. backpropagation
-        	backprop(selectedNode, winScore);
-        	
+        	// 4. grow tree with first simulated node from default policy
+        	growSearchTree(selectedLeaf);
         }
         
         // once time expired, select best move
@@ -52,16 +66,28 @@ public class TreeSearch {
         return bestNode.getPreviousMove();
 	}
 	
-	private static Node select(Node node) {
+	/**
+	 * Descent phase of Monte Carlo Tree Search.
+	 * Selects best child node according to UCT recursively until leaf is found
+	 * @param node	current node
+	 * @return		best leaf according to UCT
+	 */
+	private static Node descendAndGetBestLeaf(Node node) {
 		Node selected = node;
 		List<Node> children = node.getChildren();
 		if (children.size() > 0) {
-			return select(node.getBestChild());
+			Node bestChildNode = node.getBestChild();
+			return descendAndGetBestLeaf(bestChildNode);
 		}
 		return selected;
 	}
 	
-	private static void expand(Node node) {
+	/**
+	 * Growth phase of Monte Carlo Tree Search
+	 * Grows tree by all children of single parameter node
+	 * @param node		node to be expanded
+	 */
+	private static void growSearchTree(Node node) {
 		
 		if (node.getDepth() < MAX_TREE_DEPTH) {
 
@@ -74,7 +100,6 @@ public class TreeSearch {
 			    	n++;
 					TablutBoardState cloneBS = (TablutBoardState) bs.clone();
 			    	long b = System.currentTimeMillis();
-					cloneBS.processMove(move);
 
 					Node child = new Node(cloneBS, move);
 					node.addChild(child);
@@ -85,17 +110,34 @@ public class TreeSearch {
 				}
 			}
 		}
+		
+//		TablutBoardState bs = node.getBoardState();
+//		TablutBoardState cloneBS = (TablutBoardState) bs.clone();
+//		Node child = new Node(cloneBS, moveToChild);
+//		node.addChild(child);
 	}
 	
-	private static double simulate(Node node) {
+	/**
+	 * Rollout phase of Monte Carlo Tree Search.
+	 * Simulates a match with random simulations.
+	 * @param node
+	 * @return
+	 */
+	private static double rollOutAndGetWinScore(Node node) {
 		TablutBoardState cloneBS = (TablutBoardState) node.getBoardState().clone();
 		int initialTurnNumber = cloneBS.getTurnNumber();
 		
+		Move randomMove = cloneBS.getRandomMove();
+		cloneBS.processMove((TablutMove) randomMove);
+		firstRolloutMove = (TablutMove) randomMove;
+		
+		// keep simulating until cap of turns reached or no winner has been found
 		while (cloneBS.getWinner() == Board.NOBODY && (cloneBS.getTurnNumber()-initialTurnNumber) < MAX_SIMULATION_TURNS) {
-			Move randomMove = cloneBS.getRandomMove();
+			randomMove = cloneBS.getRandomMove();
 			cloneBS.processMove((TablutMove) randomMove);
 		}
 		
+		// 1 for win, 0 for draw, -1 for loss,
 		if (cloneBS.getWinner() == player_id) {
 			return 1;
 		} else if (cloneBS.getWinner() == Board.NOBODY) {
@@ -105,6 +147,12 @@ public class TreeSearch {
 		}
 	}
 	
+	/**
+	 * Update phase of Monte Carlo Tree Search
+	 * Backpropagates win score and number of visits recursively to parent nodes 
+	 * @param node		current node
+	 * @param winScore	win score from result rollout phase
+	 */
 	private static void backprop(Node node, double winScore) {
 		Node currentNode = node;
 		
@@ -115,6 +163,12 @@ public class TreeSearch {
 		}
 	}
 	
+	/**
+	 * Determines if move is okay to play
+	 * @param node	node with current state
+	 * @param move	tentative move
+	 * @return		if move can be played without harming player
+	 */
 	private static boolean isGoodMove(Node node, TablutMove move) {
 		return node.isRoot() || node.getPreviousMove().getStartPosition().distance(move.getEndPosition()) != 0;
 	}
