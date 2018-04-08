@@ -6,13 +6,13 @@ import java.util.List;
 import boardgame.Board;
 import boardgame.BoardState;
 import boardgame.Move;
+import coordinates.Coord;
+import coordinates.Coordinates;
 import tablut.TablutBoardState;
 import tablut.TablutMove;
+import tablut.TablutBoardState.Piece;
 
 public class TreeSearch {
-	// number codes for teams
-    private static final int SWEDE = 1;
-    private static final int MUSCOVITE = 0;
     
     // defines which ID is player and opponent
     private static int opp_id;
@@ -24,9 +24,7 @@ public class TreeSearch {
     
     // timing constants to prevent loop from timing out
     private static final int TIME_LIMIT_MS = 2000;
-    private static final int GRACE_PERIOD_MS = 1200;
-    
-    private static TablutMove firstRolloutMove;
+    private static final int GRACE_PERIOD_MS = 1000;
 	
     /**
      * Runs a Monte Carlo Tree Search to find next move
@@ -37,7 +35,7 @@ public class TreeSearch {
         
 		// make player IDs available for tree search use
         opp_id = boardState.getOpponent();
-        player_id = (opp_id == SWEDE) ? MUSCOVITE : SWEDE;
+        player_id = (opp_id == TablutBoardState.SWEDE) ? TablutBoardState.MUSCOVITE : TablutBoardState.SWEDE;
         
         // initialize tree for tree search
         Node root = new Node(boardState, null);
@@ -57,12 +55,76 @@ public class TreeSearch {
         	// 3. update win scores with backpropagation
         	backprop(selectedLeaf, winScore);
         	
-        	// 4. grow tree with first simulated node from default policy
+        	// 4. grow tree with selected leaf node
         	growSearchTree(selectedLeaf);
         }
         
         // once time expired, select best move
-        Node bestNode = Collections.max(root.getChildren());
+        List<Node> children = root.getChildren();
+        Node bestNode = Collections.max(children);
+        
+        // Trying to add manual heuristic stuff here...
+        // Never override a winning move
+        if (!(bestNode.getBoardState().getWinner() == player_id)) {
+        	
+        	Coord kingPos = boardState.getKingPosition();
+        	
+        	// SWEDE Tactics
+            if (player_id == TablutBoardState.SWEDE) {
+                // Encourage King movement (borrowed snippet from Greedy code)
+            	// if a couple turns have passed and we have fewer pieces, go into desperation mode to help the king escape
+                if (boardState.getTurnNumber() > 10 || boardState.getNumberPlayerPieces(opp_id) < boardState.getNumberPlayerPieces(player_id) ) {
+                    // iterate over King's moves to see if he can move to an open coord on the side
+                    Move bestMove = null;
+                    for (TablutMove move : boardState.getLegalMovesForPosition(kingPos)) {
+                    	Coord newPos = move.getEndPosition();
+                    	if (newPos.x == kingPos.x && newPos.y == 0 || newPos.x == kingPos.x && newPos.y == 8 || newPos.x == 0 && newPos.y == kingPos.y || newPos.x == 8 && newPos.y == kingPos.y) {
+                    		bestMove = move;
+                    		break;
+                    	}
+                    }
+                    
+                    TablutBoardState cloneBS = (TablutBoardState) boardState.clone();
+                    if (bestMove != null && MyTools.isStateSafeForKing(cloneBS) || !(MyTools.isStateSafeForKing(boardState))) {
+                        return bestMove;
+                    }
+                }
+                
+                // Attempt to protect king by pruning out states where it is endangered
+                int nextBest = 1;
+                
+                // sort children by MCTS win score (descending order) and get next best if unsafe position
+            	Collections.sort(children, Collections.reverseOrder());
+                while(nextBest < children.size() && (MyTools.isStateSafeForKing(boardState) && !MyTools.isStateSafeForKing(bestNode.getBoardState()))) {
+                	bestNode = children.get(nextBest);
+                	nextBest++;
+                }
+            	
+            }
+            
+            // MUSCOVITE Tactics
+            if (player_id == TablutBoardState.MUSCOVITE) {
+            	
+                // Go greedy: always try to corner the king if another muscovite is nearby
+            	Move bestMove = null;
+            	List<TablutMove> moveset = boardState.getAllLegalMoves();
+            	
+            	for (TablutMove move : moveset) {
+            		if (move.getEndPosition().distance(kingPos) == 1 && !(MyTools.isStateSafeForKing(boardState))) {
+            			bestMove = move;
+            		}
+            	}
+                
+                if (bestMove != null) {
+                	System.out.println("MONTE CARLO MOVE OVERRIDDEN BY MUSCOVITE GREED");
+                	return bestMove;
+                }
+            }
+            
+        }
+        
+        System.out.println("MONTE CARLO STATS FOR BEST NODE - WINSCORE: "+bestNode.getWinScore()+" VISITS: "+bestNode.getVisitCount()+"\n");
+        
         return bestNode.getPreviousMove();
 	}
 	
@@ -93,11 +155,11 @@ public class TreeSearch {
 
 			TablutBoardState bs = node.getBoardState();
 			List<TablutMove> options = bs.getAllLegalMoves();
-			int n = 0;
+			int childCount = 0;
 			for (TablutMove move : options) {
-				if (isGoodMove(node, move)) {
+				if (isNotRedundantMove(node, move) && childCount < 50) {
 			    	long a = System.currentTimeMillis();
-			    	n++;
+			    	childCount++;
 					TablutBoardState cloneBS = (TablutBoardState) bs.clone();
 			    	long b = System.currentTimeMillis();
 
@@ -105,16 +167,11 @@ public class TreeSearch {
 					node.addChild(child);
 					
 			    	if (b-a > 50) {
-			    		System.out.printf("It took %d ms to expand node number %d\n",b-a, n);
+			    		System.out.printf("It took %d ms to expand node number %d\n",b-a, childCount);
 			    	}
 				}
 			}
 		}
-		
-//		TablutBoardState bs = node.getBoardState();
-//		TablutBoardState cloneBS = (TablutBoardState) bs.clone();
-//		Node child = new Node(cloneBS, moveToChild);
-//		node.addChild(child);
 	}
 	
 	/**
@@ -127,14 +184,19 @@ public class TreeSearch {
 		TablutBoardState cloneBS = (TablutBoardState) node.getBoardState().clone();
 		int initialTurnNumber = cloneBS.getTurnNumber();
 		
-		Move randomMove = cloneBS.getRandomMove();
-		cloneBS.processMove((TablutMove) randomMove);
-		firstRolloutMove = (TablutMove) randomMove;
-		
-		// keep simulating until cap of turns reached or no winner has been found
-		while (cloneBS.getWinner() == Board.NOBODY && (cloneBS.getTurnNumber()-initialTurnNumber) < MAX_SIMULATION_TURNS) {
-			randomMove = cloneBS.getRandomMove();
-			cloneBS.processMove((TablutMove) randomMove);
+		// the getRandomMove() extremely rarely throws an error for me, so I try/catch so that
+		// random move isn't generated just because a rollout fails...
+		try {
+			Move randomMove = cloneBS.getRandomMove();
+			
+			// keep simulating until cap of turns reached or no winner has been found
+			while (cloneBS.getWinner() == Board.NOBODY && (cloneBS.getTurnNumber()-initialTurnNumber) < MAX_SIMULATION_TURNS) {
+				randomMove = cloneBS.getRandomMove();
+				cloneBS.processMove((TablutMove) randomMove);
+			}
+		} catch(IllegalArgumentException e) {
+			// random move generation failed!
+			// do nothing and chalk it up to a draw
 		}
 		
 		// 1 for win, 0 for draw, -1 for loss,
@@ -169,7 +231,7 @@ public class TreeSearch {
 	 * @param move	tentative move
 	 * @return		if move can be played without harming player
 	 */
-	private static boolean isGoodMove(Node node, TablutMove move) {
+	private static boolean isNotRedundantMove(Node node, TablutMove move) {
 		return node.isRoot() || node.getPreviousMove().getStartPosition().distance(move.getEndPosition()) != 0;
 	}
 }
