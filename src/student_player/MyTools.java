@@ -1,6 +1,7 @@
 package student_player;
 
 import coordinates.Coord;
+import coordinates.Coordinates;
 import tablut.TablutBoardState;
 import tablut.TablutBoardState.Piece;
 import tablut.TablutMove;
@@ -59,6 +60,10 @@ public class MyTools {
     public static boolean isStateSafeForKing(TablutBoardState state) {
     	Coord kingPos = state.getKingPosition();
     	Piece[] adj = getAdjacentPieces(state, kingPos);
+    	
+    	if (Coordinates.isCenterOrNeighborCenter(kingPos) && !Coordinates.isCenter(kingPos)) {
+    		return false;
+    	}
     	
     	return !(adj[0] == Piece.EMPTY && adj[1] == Piece.BLACK || adj[1] == Piece.EMPTY && adj[0] == Piece.BLACK
     			|| adj[2] == Piece.EMPTY && adj[3] == Piece.BLACK || adj[3] == Piece.EMPTY && adj[2] == Piece.BLACK);

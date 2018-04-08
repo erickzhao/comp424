@@ -17,9 +17,10 @@ public class TreeSearch {
     private static int player_id;
     
     // limits for computational budget purposes
-    private static final int MAX_TREE_DEPTH = 10;
+    private static final int MAX_TREE_DEPTH = 15;
     private static final int MAX_SIMULATION_TURNS = 20;
     private static final int MAX_CHILDREN_TO_EXPAND = 50;
+    private static final int MAX_VISIT_COUNT = 150;
     
     // timing constants to prevent loop from timing out
     private static final int TIME_LIMIT_MS = 2000;
@@ -56,6 +57,16 @@ public class TreeSearch {
         	
         	// 4. grow tree with selected leaf node
         	growSearchTree(selectedLeaf);
+
+            List<Node> children = root.getChildren();
+            Node bestNode = Collections.max(children);
+            
+            // If we've decided to visit a node a certain number of times,
+            // we can say that it was the clear choice
+            if (bestNode.getVisitCount() >= MAX_VISIT_COUNT) {
+            	System.out.println("YOUR ARMY'S ADVISORS HAVE COME TO AN EARLY CONSENSUS ON A TACTICAL DECISION");
+            	break;
+            }
         }
         
         // once time expired, select best move

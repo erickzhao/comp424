@@ -38,7 +38,7 @@ public class Node implements Comparable<Node> {
 	// make comparable so that we can compare which child to choose at end of search
 	@Override
 	public int compareTo(Node other) {
-		return (int) (visitCount - other.getVisitCount());
+		return (int) (winScore - other.getWinScore());
 	}
 	
 	/**
