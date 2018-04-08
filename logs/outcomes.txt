@@ -22,3 +22,5 @@
 22,GreedyPlayer,260687719,0,GreedyPlayer,14,game00022.log,
 23,GreedyPlayer,260687719,1,260687719,8,game00023.log,
 24,GreedyPlayer,260687719,0,GreedyPlayer,10,game00024.log,
+25,GreedyPlayer,260687719,1,260687719,10,game00025.log,
+26,260687719,RandomPlayer,0,260687719,17,game00026.log,

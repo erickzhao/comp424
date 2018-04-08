@@ -75,18 +75,25 @@ public class TreeSearch {
             	// if a couple turns have passed and we have fewer pieces, go into desperation mode to help the king escape
                 if (boardState.getTurnNumber() > 10 || boardState.getNumberPlayerPieces(opp_id) < boardState.getNumberPlayerPieces(player_id) ) {
                     // iterate over King's moves to see if he can move to an open coord on the side
-                    Move bestMove = null;
+                    Move manualMove = null;
                     for (TablutMove move : boardState.getLegalMovesForPosition(kingPos)) {
                     	Coord newPos = move.getEndPosition();
-                    	if (newPos.x == kingPos.x && newPos.y == 0 || newPos.x == kingPos.x && newPos.y == 8 || newPos.x == 0 && newPos.y == kingPos.y || newPos.x == 8 && newPos.y == kingPos.y) {
-                    		bestMove = move;
+                    	
+                    	// insta break if move is a winner
+                    	if (Coordinates.isCorner(newPos)) {
+                    		manualMove = move;
                     		break;
+                		}
+                    	
+                    	// if move shifts king to a wall
+                    	if (newPos.x == kingPos.x && newPos.y == 0 || newPos.x == kingPos.x && newPos.y == 8 || newPos.x == 0 && newPos.y == kingPos.y || newPos.x == 8 && newPos.y == kingPos.y) {
+                    		manualMove = move;
                     	}
                     }
                     
-                    TablutBoardState cloneBS = (TablutBoardState) boardState.clone();
-                    if (bestMove != null && MyTools.isStateSafeForKing(cloneBS) || !(MyTools.isStateSafeForKing(boardState))) {
-                        return bestMove;
+                    if (manualMove != null) {
+                    	System.out.println("THE COWARDLY KING ABANDONS THE REMAINS OF HIS ARMY.");
+                        return manualMove;
                     }
                 }
                 
@@ -99,27 +106,34 @@ public class TreeSearch {
                 	bestNode = children.get(nextBest);
                 	nextBest++;
                 }
+                
+                if (nextBest > 1) {
+                	System.out.println("THE KING'S ADVISORS HAVE TALKED HIM OUT OF A POOR TACTICAL DECISION");
+                }
             	
             }
             
             // MUSCOVITE Tactics
             if (player_id == TablutBoardState.MUSCOVITE) {
             	
-                // Go greedy: always try to corner the king if another muscovite is nearby
-            	Move bestMove = null;
-            	List<TablutMove> moveset = boardState.getAllLegalMoves();
-            	
-            	for (TablutMove move : moveset) {
-            		if (move.getEndPosition().distance(kingPos) == 1 && !(MyTools.isStateSafeForKing(boardState))) {
-            			bestMove = move;
-            		}
-            	}
-                
-                if (bestMove != null) {
-                	System.out.println("MONTE CARLO MOVE OVERRIDDEN BY MUSCOVITE GREED");
-                	return bestMove;
+                // Go greedy: always try to corner the king if he's vulnerable
+            	// but only if you aren't superseding a winning move!
+            	if (bestNode.getBoardState().getWinner() != player_id) {
+                	Move manualMove = null;
+                	List<TablutMove> moveset = boardState.getAllLegalMoves();
+                	
+                	for (TablutMove move : moveset) {
+                		if (move.getEndPosition().distance(kingPos) == 1 && !(MyTools.isStateSafeForKing(boardState))) {
+                			manualMove = move;
+                		}
+                	}
+                    
+                    if (manualMove != null) {
+                    	System.out.println("MONTE CARLO MOVE OVERRIDDEN BY MUSCOVITE GREED.");
+                    	return manualMove;
+                    }
                 }
-            }
+        	}
             
         }
         
