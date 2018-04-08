@@ -21,6 +21,7 @@ public class TreeSearch {
     // limits for computational budget purposes
     private static final int MAX_TREE_DEPTH = 10;
     private static final int MAX_SIMULATION_TURNS = 20;
+    private static final int MAX_CHILDREN_TO_EXPAND = 50;
     
     // timing constants to prevent loop from timing out
     private static final int TIME_LIMIT_MS = 2000;
@@ -108,7 +109,7 @@ public class TreeSearch {
                 }
                 
                 if (nextBest > 1) {
-                	System.out.println("THE KING'S ADVISORS HAVE TALKED HIM OUT OF A POOR TACTICAL DECISION");
+                	System.out.println("THE KING'S ADVISORS HAVE TALKED HIM OUT OF A POOR TACTICAL DECISION.");
                 }
             	
             }
@@ -164,25 +165,22 @@ public class TreeSearch {
 	 * @param node		node to be expanded
 	 */
 	private static void growSearchTree(Node node) {
+		int depth = node.getDepth();
 		
-		if (node.getDepth() < MAX_TREE_DEPTH) {
-
+		if (depth < MAX_TREE_DEPTH) {
 			TablutBoardState bs = node.getBoardState();
 			List<TablutMove> options = bs.getAllLegalMoves();
+			Collections.shuffle(options);
 			int childCount = 0;
 			for (TablutMove move : options) {
-				if (isNotRedundantMove(node, move) && childCount < 50) {
-			    	long a = System.currentTimeMillis();
+				// avoid redundant moves
+				// only choose 50 children randomly in deeper levels to limit computation time
+				if (isNotRedundantMove(node, move) && (depth < 2 || childCount < MAX_CHILDREN_TO_EXPAND)) {
 			    	childCount++;
 					TablutBoardState cloneBS = (TablutBoardState) bs.clone();
-			    	long b = System.currentTimeMillis();
 
 					Node child = new Node(cloneBS, move);
 					node.addChild(child);
-					
-			    	if (b-a > 50) {
-			    		System.out.printf("It took %d ms to expand node number %d\n",b-a, childCount);
-			    	}
 				}
 			}
 		}

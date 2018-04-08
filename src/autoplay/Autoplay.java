@@ -23,7 +23,7 @@ public class Autoplay {
     public static void main(String args[]) {
         int n_games;
         try {
-            n_games = 20;
+            n_games = 30;
             if (n_games < 1) {
                 throw new Exception();
             }
@@ -44,7 +44,7 @@ public class Autoplay {
             client1_pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 
             ProcessBuilder client2_pb = new ProcessBuilder("java", "-cp", "bin", "-Xms520m", "-Xmx520m",
-                    "boardgame.Client", "tablut.GreedyTablutPlayer");
+                    "boardgame.Client", "tablut.RandomTablutPlayer");
             client2_pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 
             for (int i = 0; i < n_games; i++) {
