@@ -23,7 +23,7 @@ public class Autoplay {
     public static void main(String args[]) {
         int n_games;
         try {
-            n_games = 50;
+            n_games = 100;
             if (n_games < 1) {
                 throw new Exception();
             }

@@ -24,7 +24,7 @@ public class TreeSearch {
     
     // timing constants to prevent loop from timing out
     private static final int TIME_LIMIT_MS = 2000;
-    private static final int GRACE_PERIOD_MS = 1000;
+    private static final int GRACE_PERIOD_MS = 1500;
 	
     /**
      * Runs a Monte Carlo Tree Search to find next move
@@ -95,8 +95,8 @@ public class TreeSearch {
                     		break;
                 		}
                     	
-                    	// if move shifts king to a wall
-                    	if (newPos.x == kingPos.x && newPos.y == 0 || newPos.x == kingPos.x && newPos.y == 8 || newPos.x == 0 && newPos.y == kingPos.y || newPos.x == 8 && newPos.y == kingPos.y) {
+                    	// if move shifts king to a wall when it isn't at one
+                    	if (Coordinates.getNeighbors(kingPos).size() == 4 && newPos.x == kingPos.x && newPos.y == 0 || newPos.x == kingPos.x && newPos.y == 8 || newPos.x == 0 && newPos.y == kingPos.y || newPos.x == 8 && newPos.y == kingPos.y) {
                     		manualMove = move;
                     	}
                     }
